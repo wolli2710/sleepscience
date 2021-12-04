@@ -17,54 +17,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Probanden ID:"
+            android:textSize="40dp"
+            android:text="Bitte suchen Sie sich einen ruhigen Raum und nehmen Sie eine bequeme Position ein. Während der Audiowiedergabe befindet sich das Tablet nah am Bauch. Berühren Sie Ihren Bauch nicht. Die Lautstärke des Tablets darf während der Applikationsverwendung nicht verändert werden, damit Ihr Baby den Reim im Bauch hören kann."
             android:id="@+id/textViewId"
             android:layout_alignParentLeft="true"
             android:layout_marginTop="30dp"
-            />
-
-        <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextId"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Alter:"
-            android:id="@+id/textViewAge"
-            android:layout_below="@+id/editTextAge"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="50dp"
-            />
-
-        <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextAge"
-            android:layout_alignParentRight="true"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Group:"
-            android:id="@+id/textViewGroup"
-            android:layout_below="@+id/editTextGroup"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="50dp"
-            />
-
-        <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextGroup"
-            android:layout_alignParentRight="true"
             />
 
     </LinearLayout>

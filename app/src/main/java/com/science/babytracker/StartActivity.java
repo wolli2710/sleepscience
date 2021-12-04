@@ -22,7 +22,6 @@ public class StartActivity extends AppCompatActivity {
         createButtonHandler();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -50,14 +49,8 @@ public class StartActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText userId = (EditText)findViewById(R.id.editTextId);
-                EditText userAge = (EditText)findViewById(R.id.editTextAge);
-                EditText userGroup = (EditText)findViewById(R.id.editTextGroup);
 
-
-                Data.userId = userId.getText().toString();
-                Data.userAge = userAge.getText().toString();
-                Data.userGroup = userGroup.getText().toString();
+                Data.userGroup = "1";
 
                 if(valid()) {
                     Intent intent = new Intent(v.getContext(), MainActivity.class);
@@ -70,14 +63,7 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private boolean valid(){
-        if(Data.userId.length() != 0 && Data.userAge.length() != 0 && Data.userGroup.length() != 0){
-            if(isNumerical(Data.userAge) ){
-                if(isValidGroup(Data.userGroup)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return true;
     }
 
     private boolean isValidGroup(String num){

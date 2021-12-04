@@ -1,7 +1,6 @@
 package com.science.babytracker;
 
 import android.Manifest;
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -35,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     MediaRecorder mRecorder = null;
 
     ToggleButton rhymeButton;
+    int clickCount = 0;
     Runnable rhymeButtonRunnable;
     Handler rhymeButtonHandler;
     boolean childAwakeAsleep = true;
@@ -57,14 +57,9 @@ public class MainActivity extends AppCompatActivity {
     Context currentContext = null;
     private int group1 = R.raw.group1;
     private int group2 = R.raw.group2;
+    private int currentGroup;
 
-    Button errorButton;
     Button finishButton;
-
-    Button menuButton;
-
-    Button childAwake;
-    Button childAsleep;
 
     HashMap csvEntries = new HashMap<String, Long>();
     CSVHandler csv;
@@ -107,13 +102,19 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionToRecordAccepted) {
             finish();
         }
-
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(Data.userGroup.equals("1") ) {
+            currentGroup = group1;
+        } else {
+            currentGroup = group2;
+        }
         setContentView(R.layout.activity_main);
         audioPlayer = new AudioPlayer();
+
 
         currentContext = getApplicationContext();
         dirName = currentContext.getExternalFilesDir(null).getAbsolutePath();
@@ -121,24 +122,16 @@ public class MainActivity extends AppCompatActivity {
         csv = new CSVHandler(dirName);
         fileName = csv.FILE_NAME;
         audioFile = new File(dirName + "/" + "audio_" + fileName);
-
-        audioTextView = (TextView) findViewById(R.id.textViewAudioSignal);
-        audioTextViewDb = (TextView) findViewById(R.id.textViewAudioSignalDb);
+        audioTextView = (TextView) findViewById(R.id.textViewAudioSignalDb);
         amplitudes = new int[10];
 
         mRecorder = new MediaRecorder();
-
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         rhymeButton = (ToggleButton) findViewById(R.id.toggleButtonRhyme);
 
-        errorButton = (Button) findViewById(R.id.error);
         finishButton = (Button) findViewById(R.id.finishButton);
-        menuButton = (Button) findViewById(R.id.buttonMenu);
-        childAwake = (Button) findViewById(R.id.childAwake);
-        childAsleep = (Button) findViewById(R.id.childAsleap);
-
 
         createAudioThread();
         createToggleButtonGroups();
@@ -147,40 +140,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createToggleButtonGroups() {
-        toggleButtonGroupStrings = new String[]{"stress_na", "happy_na", "complaints_na", "interaction_na"};
-        toggleButtonGroups = new View[]{null, null, null, null, null, null};
+        toggleButtonGroupStrings = new String[]{"stress_na", "happy_na", "complaints_na", "position_na", "child_activity_na"};
+        toggleButtonGroups = new View[]{null, null, null, null, null};
     }
 
     private void buttonHandler() {
-        errorButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent e) {
-                buttonTouchBehaviourHandler(v, e);
-                return false;
-            }
-        });
-
-        childAwake.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setAwakeAsleepButtonColors(v, childAsleep);
-            }
-        });
-
-        childAsleep.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setAwakeAsleepButtonColors(v, childAwake);
-            }
-        });
-
-        menuButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent e) {
-                System.exit(0);
-                return false;
-            }
-        });
 
         finishButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -194,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     writeRadioButtonValuesToFile();
                     v.setBackgroundColor(Color.parseColor("#FFFFFF"));
                 }
-                if (programCount == 2) {
+                if (programCount == 1) {
                     System.exit(0);
                 }
                 return false;
@@ -202,71 +166,33 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setAwakeAsleepButtonColors(View v, Button b) {
-        v.setBackgroundColor(0xFF0000FF);
-        b.setBackgroundColor(0xFFFFFFFF);
-        buttonToCsvHandler(v);
-        childAwakeAsleep = false;
-    }
-
     private void toggleButtonHandler() {
         rhymeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 toggleButtonBehaviourHandler(v);
                 boolean on = ((ToggleButton) v).isChecked();
-                if (on) {
-                    ((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
+                clickCount += 1;
+                if (on && clickCount < 2) {
+                    //((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
                     if(Data.userGroup.equals("1") ) {
                         audioPlayer.startLoop(currentContext, group1);
                     } else if (Data.userGroup.equals("2") ){
                         audioPlayer.startLoop(currentContext, group2);
                     }
-
-                    startBlinkingBehaviour(5, v);
-                } else {
-                    ((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
-                    audioPlayer.stopLoop();
-                    stopBlinkingBehaviour();
+                }
+//                else {
+//                    ((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
+//                    //audioPlayer.stopLoop();
+//                    //stopBlinkingBehaviour();
+//                }
+                if(clickCount >= 1) {
+                    ((ToggleButton) v).setText("");
+                    ((ToggleButton) v).setBackgroundColor(0);
                 }
             }
         });
     }
 
-    private void startBlinkingBehaviour(int t, View v) {
-        final int t1 = t;
-        final View v1 = v;
-        rhymeButtonHandler = new Handler();
-        rhymeButtonHandler.postDelayed(
-                rhymeButtonRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        int delay = 300;
-                        changeColourOverTime(delay, v1, 0xFF00FF00, 0xFFFFFF00);
-                    }
-                }, getMinutes(t1)
-        );
-    }
-
-    private void stopBlinkingBehaviour() {
-        rhymeButtonHandler.removeCallbacks(rhymeButtonRunnable);
-    }
-
-    private void changeColourOverTime(int t, View v, int cPrev, int cNew) {
-        final int t1 = t;
-        final View v1 = v;
-        final int c1 = cNew;
-        final int c2 = cPrev;
-        rhymeButtonHandler = new Handler();
-        rhymeButtonHandler.postDelayed(
-                rhymeButtonRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        v1.setBackgroundColor(c1);
-                        changeColourOverTime(t1, v1, c1, c2);
-                    }
-                }, t
-        );
-    }
 
     public void buttonToCsvHandler(View v) {
         String name = getResources().getResourceEntryName(v.getId());
@@ -321,10 +247,16 @@ public class MainActivity extends AppCompatActivity {
         toggleButtonGroups[2] = v;
     }
 
-    public void buttonBehaviourHandlerInteraction(View v) {
+    public void buttonBehaviourHandlerPosition(View v) {
         changeButtonColoring(toggleButtonGroups[3], v);
         toggleButtonGroupStrings[3] = getResources().getResourceEntryName(v.getId());
         toggleButtonGroups[3] = v;
+    }
+
+    public void buttonBehaviourHandlerChildActivity(View v) {
+        changeButtonColoring(toggleButtonGroups[4], v);
+        toggleButtonGroupStrings[4] = getResources().getResourceEntryName(v.getId());
+        toggleButtonGroups[4] = v;
     }
 
     public void writeRadioButtonValuesToFile() {
@@ -383,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
     public boolean onKeyDown(int keycode, KeyEvent e) {
         switch (keycode) {
@@ -426,11 +357,22 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            if(audioPlayer.isPlaying(currentContext, currentGroup )) {
+                                rhymeButton.setEnabled(false);
+                                rhymeButton.setFocusable(false);
+                            }
+                            if(!audioPlayer.isPlaying(currentContext, currentGroup) && clickCount >= 1) {
+                                ((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
+                            }
                             Long ts = System.currentTimeMillis();
                             String dateTime = getDateTimeFromTimeStamp(new Date(ts));
 
-                            int cAmplitude = getAmplitude();
-                            String currentAmplitude = new Integer(cAmplitude).toString();
+                            int max = 17500;
+                            int min = 0;
+                            int cAmplitude = Math.abs(getAmplitude());
+
+                            double clampAmplitude = Math.max(min, Math.min(max, cAmplitude));
+                            String currentAmplitude = String.format("%.2f",(clampAmplitude/max)*100);
 
                             writeToFile(dateTime, currentAmplitude);
                             if (cAmplitude != 0) {
@@ -438,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
                                 double db = 20 * Math.log10((double)Math.abs(cAmplitude));
 //                                double db = 20 * Math.log10((double)Math.abs(cAmplitude) / 32768);
 //                                double db = 20 * Math.log((double)Math.abs(cAmplitude) / 2700.0);
-                                audioTextViewDb.setText(String.format("%.2f", db));
+                                //audioTextViewDb.setText(String.format("%.2f", db));
                                 setAudioBackgroundColor(cAmplitude);
                             }
                         }
@@ -473,9 +415,9 @@ public class MainActivity extends AppCompatActivity {
         int avg = sum / 10;
 
         if (avg > max) {
-            audioTextView.setBackgroundColor(Color.parseColor("#FF0000"));
+            //audioTextView.setBackgroundColor(Color.parseColor("#FF0000"));
         } else {
-            audioTextView.setBackgroundColor(Color.parseColor("#99FF00"));
+            //audioTextView.setBackgroundColor(Color.parseColor("#99FF00"));
         }
         seconds = (seconds >= 9) ? 0 : seconds + 1;
     }

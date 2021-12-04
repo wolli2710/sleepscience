@@ -10,23 +10,17 @@ import java.io.IOException;
 public class CSVHandler extends FileWriteHandler {
 
     Long currentTimeStamp;
-    String userId;
-    String userSex;
-    String userAge;
 
     CSVHandler(String dir){
         super();
 
         currentTimeStamp = System.currentTimeMillis()/1000;
-        userId = Data.userId;
-        userSex = Data.userSex;
-        userAge = Data.userAge;
-        FILE_NAME = "user_"+userId+"_"+currentTimeStamp.toString()+".csv";
+        FILE_NAME = "BabyTracker_"+currentTimeStamp.toString()+".csv";
         APPLICATION_DIRECTORY = dir;
         createFile(APPLICATION_DIRECTORY, FILE_NAME);
 
         writeToFile("UserId", "User Sex", "User Age", "", "");
-        writeToFile(userId, userSex, userAge, "", "");
+        //writeToFile(userId, userSex, userAge, "", "");
         writeToFile("", "", "", "", "");
         writeToFile("Event", "Start Timestamp", "End Timestamp", "Start Zeit", "End Zeit");
     }
