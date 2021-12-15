@@ -50,7 +50,7 @@ public class StartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Data.userGroup = "1";
+                Data.userGroup = "2";
 
                 if(valid()) {
                     Intent intent = new Intent(v.getContext(), MainActivity.class);
@@ -64,12 +64,5 @@ public class StartActivity extends AppCompatActivity {
 
     private boolean valid(){
         return true;
-    }
-
-    private boolean isValidGroup(String num){
-        return (num.equals("1") || num.equals("2"));
-    }
-    private boolean isNumerical(String num){
-        return num.matches("[0-9]+");
     }
 }

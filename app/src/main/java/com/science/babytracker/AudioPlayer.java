@@ -14,12 +14,7 @@ public class AudioPlayer {
         if (mediaPlayer == null) {
             init(ctx, group);
         }
-        //Toast.makeText(ctx, "Playing sound",Toast.LENGTH_SHORT).show();
         mediaPlayer.start();
-    }
-
-    public void stopLoop(){
-        mediaPlayer.stop();
     }
 
     private void init(Context ctx, int group ) {

@@ -35,9 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     ToggleButton rhymeButton;
     int clickCount = 0;
-    Runnable rhymeButtonRunnable;
-    Handler rhymeButtonHandler;
-    boolean childAwakeAsleep = true;
     boolean isRecording = true;
     String toggleButtonGroupStrings[];
     View toggleButtonGroups[];
@@ -50,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
     int programCount = 0;
     public static TextView audioTextView;
-    public static TextView audioTextViewDb;
     private static String fileName = "/dev/null";
     private static String dirName = "";
 
@@ -173,41 +169,18 @@ public class MainActivity extends AppCompatActivity {
                 boolean on = ((ToggleButton) v).isChecked();
                 clickCount += 1;
                 if (on && clickCount < 2) {
-                    //((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
                     if(Data.userGroup.equals("1") ) {
                         audioPlayer.startLoop(currentContext, group1);
                     } else if (Data.userGroup.equals("2") ){
                         audioPlayer.startLoop(currentContext, group2);
                     }
                 }
-//                else {
-//                    ((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.VISIBLE);
-//                    //audioPlayer.stopLoop();
-//                    //stopBlinkingBehaviour();
-//                }
                 if(clickCount >= 1) {
                     ((ToggleButton) v).setText("");
                     ((ToggleButton) v).setBackgroundColor(0);
                 }
             }
         });
-    }
-
-
-    public void buttonToCsvHandler(View v) {
-        String name = getResources().getResourceEntryName(v.getId());
-        Long ts = System.currentTimeMillis();
-
-        Long timeStamp = ts / 1000;
-
-        String dateTime = getDateTimeFromTimeStamp(new Date(ts));
-        csv.writeToFile(name, timeStamp + "", dateTime);
-    }
-
-    public void buttonBehaviourHandler(View v) {
-        ((GridLayout) findViewById(R.id.gridLayoutButtons)).setVisibility(View.GONE);
-
-        writeRadioButtonValuesToFile();
     }
 
     private void resetButton(View v) {
@@ -267,26 +240,14 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < toggleButtonGroupStrings.length; i++) {
             String name = toggleButtonGroupStrings[i];
             resetButton(toggleButtonGroups[i]);
-            csv.writeToFile(name, timeStamp + "", "", dateTime, "");
-        }
-    }
-
-    public void buttonTouchBehaviourHandler(View v, MotionEvent e) {
-        if (e.getAction() == MotionEvent.ACTION_UP) {
-            v.setBackgroundColor(Color.parseColor("#FF0000"));
-        } else if (e.getAction() == MotionEvent.ACTION_DOWN) {
-            buttonToCsvHandler(v);
-            v.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            csv.writeToFile(name, timeStamp + "", dateTime);
         }
     }
 
     public void toggleButtonBehaviourHandler(View v) {
         boolean on = ((ToggleButton) v).isChecked();
         String name = getResources().getResourceEntryName(v.getId()).replace("toggleButton", "");
-
         Long ts = System.currentTimeMillis();
-        Long timeStamp = ts / 1000;
-        String dateTime = getDateTimeFromTimeStamp(new Date(ts));
 
         if (on) {
             //started
@@ -296,16 +257,7 @@ public class MainActivity extends AppCompatActivity {
             //stopped
             v.setBackgroundColor(0xFF00FF00);
             Long startTimeStamp = (Long) csvEntries.get(name);
-
-            String startDateTime = getDateTimeFromTimeStamp(new Date(startTimeStamp));
-            String stopDateTime = getDateTimeFromTimeStamp(new Date(ts));
-
-            csv.writeToFile(name, startTimeStamp.toString(), timeStamp + "", startDateTime, stopDateTime);
         }
-    }
-
-    private int getMinutes(int m) {
-        return (60 * 1000) * m;
     }
 
     @Override
@@ -331,7 +283,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String getDateTimeFromTimeStamp(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy' 'HH:mm:ss");
-        return simpleDateFormat.format(date);
+        String formattedAmplitude = simpleDateFormat.format(date).replace(" ",",");
+        return formattedAmplitude;
     }
 
     private int getAmplitude() {
@@ -377,11 +330,6 @@ public class MainActivity extends AppCompatActivity {
                             writeToFile(dateTime, currentAmplitude);
                             if (cAmplitude != 0) {
                                 audioTextView.setText(currentAmplitude);
-                                double db = 20 * Math.log10((double)Math.abs(cAmplitude));
-//                                double db = 20 * Math.log10((double)Math.abs(cAmplitude) / 32768);
-//                                double db = 20 * Math.log((double)Math.abs(cAmplitude) / 2700.0);
-                                //audioTextViewDb.setText(String.format("%.2f", db));
-                                setAudioBackgroundColor(cAmplitude);
                             }
                         }
                     });
@@ -396,29 +344,13 @@ public class MainActivity extends AppCompatActivity {
         if (new File(dirName).exists()) {
             try {
                 FileWriter fw = new FileWriter(audioFile, true);
-                String entry = timeStamp + "," + amplitude + "\n";
+                String formattedAmplitude = amplitude.replace(",",".");
+                String entry = timeStamp + "," + formattedAmplitude + "\n";
                 fw.append(entry);
                 fw.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void setAudioBackgroundColor(int amplitude) {
-        int max = 17500;
-        amplitudes[seconds] = amplitude;
-        int sum = 0;
-        for (int i = 0; i < 10; i++) {
-            sum += amplitudes[i];
-        }
-        int avg = sum / 10;
-
-        if (avg > max) {
-            //audioTextView.setBackgroundColor(Color.parseColor("#FF0000"));
-        } else {
-            //audioTextView.setBackgroundColor(Color.parseColor("#99FF00"));
-        }
-        seconds = (seconds >= 9) ? 0 : seconds + 1;
     }
 }

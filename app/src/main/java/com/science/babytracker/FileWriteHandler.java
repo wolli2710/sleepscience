@@ -16,21 +16,10 @@ public abstract class FileWriteHandler {
     String storage_state;
 
     protected static String FILE_NAME;
-    protected static String AUDIO_FILE_NAME;
     protected static String APPLICATION_DIRECTORY;
 
     FileWriteHandler(){
         storage_state = Environment.getExternalStorageState();
-    }
-
-    void createFile(String directory, String filename, String prefix){
-        file = new File(directory +"/"+ prefix+filename);
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     protected void createFile(String directory, String filename){
@@ -43,15 +32,6 @@ public abstract class FileWriteHandler {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    protected void writeDirectory(String dir){
-        if( checkStorageState() ) {
-            File newDir = new File(dir);
-            newDir.mkdirs();
-        } else {
-            Log.d("writeDirectory", "No External Storage Device found");
         }
     }
 
@@ -68,5 +48,4 @@ public abstract class FileWriteHandler {
     {
         return (Environment.MEDIA_MOUNTED.equals(storage_state) && !Environment.MEDIA_MOUNTED_READ_ONLY.equals(storage_state)) ? true : false;
     }
-
 }

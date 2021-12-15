@@ -19,23 +19,7 @@ public class CSVHandler extends FileWriteHandler {
         APPLICATION_DIRECTORY = dir;
         createFile(APPLICATION_DIRECTORY, FILE_NAME);
 
-        writeToFile("UserId", "User Sex", "User Age", "", "");
-        //writeToFile(userId, userSex, userAge, "", "");
-        writeToFile("", "", "", "", "");
-        writeToFile("Event", "Start Timestamp", "End Timestamp", "Start Zeit", "End Zeit");
-    }
-
-    public void writeToFile(String name, String startTimeStamp, String timeStamp, String startDateTime, String stopDateTime){
-        if( new File(APPLICATION_DIRECTORY).exists() ){
-            try {
-                FileWriter fw = new FileWriter(file, true);
-                String entry = name +","+ startTimeStamp +","+ timeStamp +","+ startDateTime +","+ stopDateTime +"\n";
-                fw.append(entry);
-                fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        writeToFile("Event", "Timestamp", "Time");
     }
 
     public void writeToFile(String name, String startTimeStamp, String dateTime){
